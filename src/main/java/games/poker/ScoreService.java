@@ -1,5 +1,9 @@
 package games.poker;
 
+import org.paukov.combinatorics.Factory;
+import org.paukov.combinatorics.Generator;
+import org.paukov.combinatorics.ICombinatoricsVector;
+
 import java.util.Stack;
 
 /**
@@ -7,9 +11,9 @@ import java.util.Stack;
  */
 public class ScoreService {
 
-	public Stack<Hand> handsTested = new Stack<Hand>();
-	public int scoredCounter = 0;
-	private int HAND_SIZE = 5;
+	//public Stack<Hand> handsTested = new Stack<Hand>();
+	//public int scoredCounter = 0;
+	static private int HAND_SIZE = 5;
 
 	public Hand bestHand(HoleCards holeCards, Board board){
 		Stack<Card> hand = holeCards.getHoleCards();
@@ -17,12 +21,30 @@ public class ScoreService {
 			hand.add(card);
 		}
 		Hand bestHand = buildHand(hand);
-		handsTested.removeAllElements();
+		//handsTested.removeAllElements();
 		return bestHand;
 	}
 
 	private Hand buildHand(Stack<Card> hand) {
-		Stack<Card> tempHand = new Stack<Card>();
+        Hand bestHand = new Hand();
+        Hand testHand = new Hand();
+        HandComparison comparedHands;
+        ICombinatoricsVector<Card> hands = Factory.createVector(hand);
+        Generator<Card> gen = Factory.createSimpleCombinationGenerator(hands, HAND_SIZE);
+        for(ICombinatoricsVector<Card> combination: gen){
+            for(Card card: combination){
+                testHand.getHand().push(card);
+            }
+            if(bestHand.getHand().isEmpty()) {
+                comparedHands = compareHands(testHand, testHand);
+            } else {
+                comparedHands = compareHands(testHand, bestHand);
+            }
+            testHand.getHand().clear();
+            bestHand = comparedHands.getWinner();
+        }
+        return bestHand;
+        /*Stack<Card> tempHand = new Stack<Card>();
 		HandComparison comparedHands;
 		while(hand.size() > 5){
 			tempHand.add(hand.pop());
@@ -80,7 +102,7 @@ public class ScoreService {
 		}
 
 
-		return bestHand;
+		return bestHand;*/
 	}
 
 	boolean sameHand(Hand test1, Hand test2){
@@ -94,13 +116,13 @@ public class ScoreService {
 
 	public HandComparison compareHands(Hand bestHand, Hand testHand) {
 		HandComparison comparedHands = new HandComparison();
-		for(Hand hand:handsTested){
+		/*for(Hand hand:handsTested){
 			if(sameHand(hand, testHand) || testHand.getHand().size() < 5)
 			{
 				comparedHands.setWinner(bestHand);
 				return comparedHands;
 			}
-		}
+		}*/
 		bestHand = scoreHand(bestHand.getHand());
 		testHand = scoreHand(testHand.getHand());
 		if(bestHand.getHandType().HandType() >= testHand.getHandType().HandType()){
@@ -110,26 +132,30 @@ public class ScoreService {
 				for(int i = 13; i >= 0; i--){
 					if(bestHandSorted[i] > testHandSorted[i]){
 						comparedHands.setWinner(bestHand);
+                        comparedHands.setLoser(testHand);
 						return comparedHands;
 					} else if(testHandSorted[i] > bestHandSorted[i]){
 						comparedHands.setWinner(testHand);
+                        comparedHands.setLoser(bestHand);
 						return comparedHands;
 					}
-					comparedHands.setTie(true);
 				}
+                comparedHands.setTie(true);
 			}
 			comparedHands.setWinner(bestHand);
+            comparedHands.setLoser(testHand);
 			return comparedHands;
 		}
 		comparedHands.setWinner(testHand);
+        comparedHands.setLoser(bestHand);
 		return comparedHands;
 	}
 
 	private Hand scoreHand(Stack<Card> hand) {
-		scoredCounter++;
+		//scoredCounter++;
 		Hand scoredHand = new Hand();
 		scoredHand.setHand(hand);
-		handsTested.push(scoredHand);
+		//handsTested.push(scoredHand);
 		//int[] cardRanks = sortRanks(hand);
 		if(isStraightFlush(hand)){
 			scoredHand.setHandType(HandType.STRAIGHT_FLUSH);
