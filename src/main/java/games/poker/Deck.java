@@ -10,7 +10,7 @@ import java.util.Stack;
  */
 public class Deck {
 
-	public Stack<Card> deck = new Stack<Card>();
+	private Stack<Card> deck = new Stack<Card>();
 
 	public Deck(){
 		for(Rank rank: Rank.values()){
@@ -19,6 +19,14 @@ public class Deck {
 			}
 		}
 	}
+
+    public Card get(int index){
+        return deck.get(index);
+    }
+
+    public int size(){
+        return deck.size();
+    }
 
 	public void shuffle(){
 		Random rn = new Random();

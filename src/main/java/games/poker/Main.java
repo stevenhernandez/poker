@@ -14,7 +14,7 @@ public class Main {
 
         Deck deck = new Deck();
         for(int i = 0; i < 52; i++){
-            Card card = deck.deck.get(i);
+            Card card = deck.get(i);
             System.out.println(card.rank.name() + " of " + card.suit.name());
         }
 
@@ -25,8 +25,8 @@ public class Main {
         System.out.println();
 
         deck.shuffle();
-        for(int i = 0; i < deck.deck.size(); i++){
-            Card card = deck.deck.get(i);
+        for(int i = 0; i < deck.size(); i++){
+            Card card = deck.get(i);
             System.out.println(card.rank.name() + " of " + card.suit.name());
         }
         Stack<Player> players = new Stack<Player>();
